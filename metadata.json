@@ -1,0 +1,8 @@
+{
+  "name": "Clinical Medical Consultant Chatbot",
+  "description": "An AI-powered medical consultant chatbot based on a rigorous 4-layer diagnostic reasoning framework. It assists in symptom mapping, root cause analysis, therapeutic target identification, prescription construction, and exports beautiful pdf consultation reports.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
