@@ -8,7 +8,7 @@ import path from "path";
 import dotenv from "dotenv";
 import { createServer as createViteServer } from "vite";
 import { GoogleGenAI } from "@google/genai";
-import { CLINICAL_SYSTEM_PROMPT } from "./server/prompt";
+import { CLINICAL_SYSTEM_PROMPT } from "./prompts/prompt";
 
 // Load environment variables
 dotenv.config();
