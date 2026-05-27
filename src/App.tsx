@@ -7,12 +7,12 @@ import React, { useState, useEffect, useRef } from 'react';
 import { PatientIntake, ChatMessage as MessageType } from './types';
 import IntakeForm from './components/IntakeForm';
 import ChatMessage from './components/ChatMessage';
-import { 
-  Stethoscope, 
-  Trash2, 
-  User, 
-  AlertCircle, 
-  ArrowRight, 
+import {
+  Stethoscope,
+  Trash2,
+  User,
+  AlertCircle,
+  ArrowRight,
   Send,
   Loader2,
   Calendar,
@@ -30,10 +30,10 @@ export default function App() {
   const [inputText, setInputText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [serverOnline, setServerOnline] = useState<boolean | null>(null);
-  
+
   // Mobile Tab State
   const [mobileTab, setMobileTab] = useState<'intake' | 'chat' | 'dashboard'>('chat');
-  
+
   const bottomRef = useRef<HTMLDivElement>(null);
 
   // Check backend server availability on boot
@@ -73,7 +73,7 @@ export default function App() {
   // Handle saving clinical intake sheet and syncing to chat context
   const handleSaveIntake = (intake: PatientIntake) => {
     setPatientIntake(intake);
-    
+
     // Auto-generate a beautiful summary message representing the patient file
     const intakeSummary = `### 📋 ক্লিনিক্যাল ইনটেক ফর্ম সিঙ্ক্রোনাইজড
 
@@ -111,7 +111,7 @@ export default function App() {
   // Trigger stream formulation from the server
   const triggerConsultationResponse = async (chatHistory: MessageType[]) => {
     setIsLoading(true);
-    
+
     const assistantMessageId = `assist-${Date.now()}`;
     const initialAssistantMessage: MessageType = {
       id: assistantMessageId,
@@ -146,7 +146,7 @@ export default function App() {
           if (done) break;
 
           buffer += decoder.decode(value, { stream: true });
-          
+
           // Split on SSE delimiters
           const lines = buffer.split('\n\n');
           // Hold onto the last chunk in case it's partial
@@ -166,10 +166,10 @@ export default function App() {
                 }
                 if (parsed.text) {
                   completedText += parsed.text;
-                  setMessages(prev => 
-                    prev.map(msg => 
-                      msg.id === assistantMessageId 
-                        ? { ...msg, content: completedText, isClinicalAssessment: true } 
+                  setMessages(prev =>
+                    prev.map(msg =>
+                      msg.id === assistantMessageId
+                        ? { ...msg, content: completedText, isClinicalAssessment: true }
                         : msg
                     )
                   );
@@ -183,7 +183,7 @@ export default function App() {
       }
     } catch (error: any) {
       console.error("Stream compilation error:", error);
-      
+
       // Attempt fallback to non-streaming API route if stream fails
       try {
         const fallbackResponse = await fetch('/api/chat-sync', {
@@ -194,21 +194,21 @@ export default function App() {
           body: JSON.stringify({ messages: chatHistory })
         });
         const data = await fallbackResponse.json();
-        
+
         if (data.error) throw new Error(data.error);
 
-        setMessages(prev => 
-          prev.map(msg => 
-            msg.id === assistantMessageId 
-              ? { ...msg, content: data.text || 'প্রতিক্রিয়া পার্স করার সময় একটি সমস্যা দেখা দিয়েছে।', isClinicalAssessment: true } 
+        setMessages(prev =>
+          prev.map(msg =>
+            msg.id === assistantMessageId
+              ? { ...msg, content: data.text || 'প্রতিক্রিয়া পার্স করার সময় একটি সমস্যা দেখা দিয়েছে।', isClinicalAssessment: true }
               : msg
           )
         );
       } catch (fallbackError: any) {
-        setMessages(prev => 
-          prev.map(msg => 
-            msg.id === assistantMessageId 
-              ? { ...msg, content: `⚠️ **ক্লিনিক্যাল ডেস্ক পৌঁছানো যায়নি**\n\nসার্ভার-সাইড ইন্টেলিজেন্সে সাথে যোগাযোগ করতে সমস্যা হয়েছে: \n\`${fallbackError.message || error.message}\`\n\nদয়া করে আপনার এআই স্টুডিও কনফিগারেশনের সার্ভার ক্রেডেনশিয়াল চেক করুন।` } 
+        setMessages(prev =>
+          prev.map(msg =>
+            msg.id === assistantMessageId
+              ? { ...msg, content: `⚠️ **ক্লিনিক্যাল ডেস্ক পৌঁছানো যায়নি**\n\nসার্ভার-সাইড ইন্টেলিজেন্সে সাথে যোগাযোগ করতে সমস্যা হয়েছে: \n\`${fallbackError.message || error.message}\`\n\nদয়া করে আপনার এআই স্টুডিও কনফিগারেশনের সার্ভার ক্রেডেনশিয়াল চেক করুন।` }
               : msg
           )
         );
@@ -259,7 +259,7 @@ export default function App() {
 
   return (
     <div className="h-[100dvh] bg-slate-100 text-slate-805 flex flex-col font-sans overflow-hidden" id="medical-application-root">
-      
+
       {/* Upper Navigation Bar */}
       <header className="bg-slate-705 text-white border-b border-slate-805 sticky top-0 z-40 px-6 py-3 shadow-md" id="upper-header">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
@@ -290,7 +290,7 @@ export default function App() {
                 <AlertCircle className="w-3 h-3 text-red-500" /> এপিআই চেক ব্যর্থ
               </span>
             )}
-            
+
             <button
               onClick={handleResetChat}
               id="header-reset-btn"
@@ -306,7 +306,7 @@ export default function App() {
 
       {/* Main Panel Content Area - Three-column layout for modern high density dashboards */}
       <main className="flex-1 max-w-7xl w-full mx-auto p-2 lg:p-4 flex flex-col lg:grid lg:grid-cols-12 gap-4 overflow-hidden relative">
-        
+
         {/* Left Column: Intake Sheet Module */}
         <section className={`${mobileTab === 'intake' ? 'flex' : 'hidden'} lg:flex lg:col-span-3 h-full overflow-hidden flex-col order-1 lg:order-1`}>
           {patientIntake ? (
@@ -394,14 +394,14 @@ export default function App() {
 
         {/* Center Column: Dynamic Consultation Thread */}
         <section className={`${mobileTab === 'chat' ? 'flex' : 'hidden'} lg:flex lg:col-span-6 h-full bg-slate-100 overflow-hidden flex-col order-2 lg:order-2 rounded-xl border border-slate-200 shadow-xs`}>
-          
+
           {/* Thread Header */}
           <div className="bg-white border-b border-slate-200 px-4 py-2.5 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-blue-600 animate-pulse"></span>
               <span className="text-xs font-bold text-slate-700 uppercase tracking-wider font-mono">কনসালটেশন ডেস্ক</span>
             </div>
-            
+
             {patientIntake ? (
               <span className="text-[9px] bg-blue-50 text-blue-700 px-2 py-0.5 rounded font-mono font-bold border border-blue-100">
                 রোগীর প্রোফাইল সক্রিয়
@@ -416,14 +416,14 @@ export default function App() {
           {/* Messages Flow Scroll Area */}
           <div className="flex-1 overflow-y-auto p-4" id="consultation-chat-scrollbar">
             {messages.map((msg, index) => (
-              <ChatMessage 
-                key={msg.id} 
-                message={msg} 
+              <ChatMessage
+                key={msg.id}
+                message={msg}
                 patientIntake={patientIntake}
                 isLatest={index === messages.length - 1}
               />
             ))}
-            
+
             {/* Appended typing loader during pending requests */}
             {isLoading && (
               <div className="flex items-center gap-2 text-slate-705 text-xs font-semibold bg-white py-2.5 px-3.5 rounded-lg border border-slate-200 max-w-xs shadow-2xs">
@@ -431,7 +431,7 @@ export default function App() {
                 <span>ক্লিনিক্যাল বিশ্লেষণ করা হচ্ছে...</span>
               </div>
             )}
-            
+
             <div ref={bottomRef} />
           </div>
 
@@ -465,8 +465,8 @@ export default function App() {
                 type="text"
                 id="message-composer-input"
                 disabled={isLoading}
-                placeholder={patientIntake 
-                  ? "নতুন কোন সমস্যা? যেমন: ঢাকায় কোন ব্র্যান্ডের ঔষধ সহজে পাওয়া যাবে?" 
+                placeholder={patientIntake
+                  ? "নতুন কোন সমস্যা? যেমন: ঢাকায় কোন ব্র্যান্ডের ঔষধ সহজে পাওয়া যাবে?"
                   : "আপনার সমস্যার কথা লিখুন, অথবা প্রথমে ইনটেক ফর্ম পূরণ করুন..."
                 }
                 value={inputText}
@@ -485,7 +485,7 @@ export default function App() {
             </form>
             <div className="flex justify-between items-center mt-2 px-1.5 text-[8.5px] text-slate-400">
               <span className="flex items-center gap-1 font-mono">
-                <Calendar className="w-3" /> পরামর্শের সময়: {new Date().toLocaleDateString(undefined, {month: 'short', day: 'numeric', year: 'numeric'})}
+                <Calendar className="w-3" /> পরামর্শের সময়: {new Date().toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
               </span>
               <span>medex.com.bd নির্দেশিকা অনুযায়ী যাচাইকৃত।</span>
             </div>
@@ -498,76 +498,75 @@ export default function App() {
           <aside className="w-full h-full flex flex-col gap-3.5 overflow-y-auto bg-white border border-slate-200 rounded-xl p-3.5 shadow-2xs" id="intelligence-dashboard">
             <div>
               <div className="font-bold text-[10px] uppercase text-slate-500 font-mono tracking-wider mb-2 flex items-center gap-1">
-              <span>🩺 ক্লিনিক্যাল সূচক</span>
-            </div>
-            
-            <div className="grid grid-cols-2 gap-2">
-              <div className="bg-slate-50 px-2.5 py-1.5 rounded border border-slate-205">
-                <div className="text-[9px] text-slate-500 font-bold uppercase font-mono">কেসের তীব্রতা</div>
-                <div className={`font-display font-extrabold text-xs mt-0.5 ${
-                  patientIntake 
-                    ? Number(patientIntake.severity) > 6 
-                      ? 'text-red-655 font-bold'
-                      : Number(patientIntake.severity) > 3 
-                        ? 'text-amber-650 font-bold text-amber-600'
-                        : 'text-green-600 font-bold'
-                    : 'text-slate-400 font-semibold'
-                }`}>
-                  {patientIntake 
-                    ? Number(patientIntake.severity) > 6 
-                      ? 'তীব্র' 
-                      : Number(patientIntake.severity) > 3 
-                        ? 'মাঝারি' 
-                        : 'মৃদু'
-                    : 'অপেক্ষারত'}
+                <span>🩺 ক্লিনিক্যাল সূচক</span>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <div className="bg-slate-50 px-2.5 py-1.5 rounded border border-slate-205">
+                  <div className="text-[9px] text-slate-500 font-bold uppercase font-mono">কেসের তীব্রতা</div>
+                  <div className={`font-display font-extrabold text-xs mt-0.5 ${patientIntake
+                      ? Number(patientIntake.severity) > 6
+                        ? 'text-red-655 font-bold'
+                        : Number(patientIntake.severity) > 3
+                          ? 'text-amber-650 font-bold text-amber-600'
+                          : 'text-green-600 font-bold'
+                      : 'text-slate-400 font-semibold'
+                    }`}>
+                    {patientIntake
+                      ? Number(patientIntake.severity) > 6
+                        ? 'তীব্র'
+                        : Number(patientIntake.severity) > 3
+                          ? 'মাঝারি'
+                          : 'মৃদু'
+                      : 'অপেক্ষারত'}
+                  </div>
+                </div>
+                <div className="bg-slate-50 px-2.5 py-1.5 rounded border border-slate-205">
+                  <div className="text-[9px] text-slate-500 font-bold uppercase font-mono">নিশ্চয়তা সূচক</div>
+                  <div className="font-display font-extrabold text-xs text-slate-805 mt-0.5">
+                    {patientIntake ? '৮৫%' : 'প্রযোজ্য নয়'}
+                  </div>
                 </div>
               </div>
-              <div className="bg-slate-50 px-2.5 py-1.5 rounded border border-slate-205">
-                <div className="text-[9px] text-slate-500 font-bold uppercase font-mono">নিশ্চয়তা সূচক</div>
-                <div className="font-display font-extrabold text-xs text-slate-805 mt-0.5">
-                  {patientIntake ? '৮৫%' : 'প্রযোজ্য নয়'}
-                </div>
+            </div>
+
+            <hr className="border-t border-slate-200" />
+
+            {/* Red Flag Zone Alert Panel */}
+            <div className="red-flag-zone flex flex-col gap-1.5">
+              <div className="font-extrabold text-[10px] text-red-700 uppercase font-mono tracking-wider flex items-center gap-1">
+                <AlertCircle className="w-3.5 h-3.5 text-red-600 shrink-0" />
+                <span>🚨 ঝুঁকিপূর্ণ লক্ষণ (Red Flags)</span>
+              </div>
+              <ul className="text-[10px] text-red-900 list-disc pl-4 space-y-1.5 leading-tight font-medium">
+                <li>বুক ব্যথা বাম কাঁধে/হাতে বা চোয়ালে ছড়িয়ে পড়া</li>
+                <li>গিলতে তীব্র কষ্ট (Dysphagia)</li>
+                <li>হঠাৎ তীব্র শ্বাসকষ্ট, অতিরিক্ত ঘাম হওয়া</li>
+                <li>ক্রমাগত বমি বা কালো রঙের মলত্যাগ</li>
+              </ul>
+            </div>
+
+            <hr className="border-t border-slate-200" />
+
+            <div>
+              <div className="font-bold text-[10px] uppercase text-slate-500 font-mono tracking-wider mb-2">
+                📋 কুইক বেঞ্চমার্ক (ঢাকা)
+              </div>
+              <div className="text-[10px] text-slate-600 space-y-2 leading-relaxed bg-slate-50 p-2.5 rounded border border-slate-205">
+                <p>📍 বাংলাদেশ ভিত্তিক <strong>medex.com.bd</strong>-এর তথ্যের সাথে ডাটা যুক্ত করা হয়েছে।</p>
+                <p>💊 স্কয়ার, বেক্সিমকো, এবং ইনসেপ্টার মতো কোম্পানির জেনেরিক ঔষধ ডেটাবেস থেকে মূল্যায়ন করা হয়েছে।</p>
+                <p>🧬 রোগীর অ্যালার্জির ওপর ভিত্তি করে স্বয়ংক্রিয়ভাবে বিপদজনক ঔষধ বাতিল করা হয়।</p>
               </div>
             </div>
-          </div>
 
-          <hr className="border-t border-slate-200" />
-
-          {/* Red Flag Zone Alert Panel */}
-          <div className="red-flag-zone flex flex-col gap-1.5">
-            <div className="font-extrabold text-[10px] text-red-700 uppercase font-mono tracking-wider flex items-center gap-1">
-              <AlertCircle className="w-3.5 h-3.5 text-red-600 shrink-0" />
-              <span>🚨 ঝুঁকিপূর্ণ লক্ষণ (Red Flags)</span>
+            <div className="mt-auto pt-4 text-center border-t border-slate-200">
+              <div className="text-[9px] font-bold text-slate-400 font-mono tracking-wider">
+                DSS DECISION SUPPORT v2.0
+              </div>
+              <div className="text-[8px] text-slate-400 mt-1">
+                ronincorp©️
+              </div>
             </div>
-            <ul className="text-[10px] text-red-900 list-disc pl-4 space-y-1.5 leading-tight font-medium">
-              <li>বুক ব্যথা বাম কাঁধে/হাতে বা চোয়ালে ছড়িয়ে পড়া</li>
-              <li>গিলতে তীব্র কষ্ট (Dysphagia)</li>
-              <li>হঠাৎ তীব্র শ্বাসকষ্ট, অতিরিক্ত ঘাম হওয়া</li>
-              <li>ক্রমাগত বমি বা কালো রঙের মলত্যাগ</li>
-            </ul>
-          </div>
-
-          <hr className="border-t border-slate-200" />
-
-          <div>
-            <div className="font-bold text-[10px] uppercase text-slate-500 font-mono tracking-wider mb-2">
-              📋 কুইক বেঞ্চমার্ক (ঢাকা)
-            </div>
-            <div className="text-[10px] text-slate-600 space-y-2 leading-relaxed bg-slate-50 p-2.5 rounded border border-slate-205">
-              <p>📍 বাংলাদেশ ভিত্তিক <strong>medex.com.bd</strong>-এর তথ্যের সাথে ডাটা যুক্ত করা হয়েছে।</p>
-              <p>💊 স্কয়ার, বেক্সিমকো, এবং ইনসেপ্টার মতো কোম্পানির জেনেরিক ঔষধ ডেটাবেস থেকে মূল্যায়ন করা হয়েছে।</p>
-              <p>🧬 রোগীর অ্যালার্জির ওপর ভিত্তি করে স্বয়ংক্রিয়ভাবে বিপদজনক ঔষধ বাতিল করা হয়।</p>
-            </div>
-          </div>
-
-          <div className="mt-auto pt-4 text-center border-t border-slate-200">
-            <div className="text-[9px] font-bold text-slate-400 font-mono tracking-wider">
-              DSS DECISION SUPPORT v2.0
-            </div>
-            <div className="text-[8px] text-slate-400 mt-1">
-              শুধুমাত্র রেফারেন্স হিসেবে ব্যবহারের জন্য।
-            </div>
-          </div>
           </aside>
         </section>
 
