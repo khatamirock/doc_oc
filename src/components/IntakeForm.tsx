@@ -113,7 +113,7 @@ export default function IntakeForm({ onSave, initialIntake }: IntakeFormProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.chiefComplaint.trim() || !formData.duration.trim()) {
-      alert("Please fill in at least the Chief Complaint and Duration of symptoms.");
+      alert("দয়া করে কমপক্ষে প্রধান লক্ষণ এবং সমস্যার সময়কাল উল্লেখ করুন।");
       return;
     }
     onSave(formData);
@@ -128,15 +128,15 @@ export default function IntakeForm({ onSave, initialIntake }: IntakeFormProps) {
             <ClipboardList className="w-4 h-4 text-slate-100" />
           </div>
           <div>
-            <h2 className="font-display font-bold text-sm leading-tight tracking-tight">Clinical Intake Sheet</h2>
-            <p className="text-[10px] text-slate-350 font-mono font-medium text-slate-400">Information Gathering Protocol</p>
+            <h2 className="font-display font-bold text-sm leading-tight tracking-tight">ক্লিনিক্যাল ইনটেক ফর্ম</h2>
+            <p className="text-[10px] text-slate-350 font-mono font-medium text-slate-400">তথ্য সংগ্রহ প্রোটোকল</p>
           </div>
         </div>
       </div>
 
       {/* Preset Selector */}
       <div className="bg-slate-50 p-3 border-b border-slate-200">
-        <span className="text-[10px] uppercase font-mono tracking-wider text-slate-500 font-bold block mb-1.5">🔬 Evaluation Presets:</span>
+        <span className="text-[10px] uppercase font-mono tracking-wider text-slate-500 font-bold block mb-1.5">🔬 মূল্যায়ন প্রিসেট:</span>
         <div className="flex flex-wrap gap-1.5">
           {PRESETS.map(preset => (
             <button
@@ -165,7 +165,7 @@ export default function IntakeForm({ onSave, initialIntake }: IntakeFormProps) {
           }`}
         >
           <ShieldAlert className="w-3.5 h-3.5 text-blue-600" />
-          Required Core Data
+          প্রাথমিক তথ্য
         </button>
         <button
           type="button"
@@ -178,7 +178,7 @@ export default function IntakeForm({ onSave, initialIntake }: IntakeFormProps) {
           }`}
         >
           <User className="w-3.5 h-3.5 text-slate-500" />
-          Context & Demographics
+          অন্যান্য ডেমোগ্রাফিক্স
         </button>
       </div>
 
@@ -189,15 +189,15 @@ export default function IntakeForm({ onSave, initialIntake }: IntakeFormProps) {
             {/* Chief Complaint */}
             <div>
               <label className="block text-xs font-semibold text-gray-700 mb-1 flex items-center justify-between">
-                <span>1. Chief Complaint (Symptoms) <span className="text-red-500">*</span></span>
-                <span className="text-[10px] font-mono font-normal text-gray-400">In patient's words</span>
+                <span>১. প্রধান লক্ষণ / সমস্যা <span className="text-red-500">*</span></span>
+                <span className="text-[10px] font-mono font-normal text-gray-400">রোগীর নিজের ভাষায়</span>
               </label>
               <textarea
                 name="chiefComplaint"
                 id="input-chief-complaint"
                 required
                 rows={3}
-                placeholder="What is the main physical problem? e.g., Severe burning chest pain after eating curry, acid belching."
+                placeholder="প্রধান সমস্যা কী? যেমন: অতিরিক্ত মাত্রায় বুক জ্বালাপোড়া বা এসিডিটি।"
                 value={formData.chiefComplaint}
                 onChange={handleChange}
                 className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-hidden focus:ring-1 focus:ring-teal-500 focus:border-teal-500 bg-white resize-none"
@@ -207,14 +207,14 @@ export default function IntakeForm({ onSave, initialIntake }: IntakeFormProps) {
             {/* Duration and Onset */}
             <div>
               <label className="block text-xs font-semibold text-gray-700 mb-1">
-                2. Onset & Duration <span className="text-red-500">*</span>
+                ২. সমস্যা শুরুর সময়কাল <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
                 name="duration"
                 id="input-duration"
                 required
-                placeholder="e.g., 3 days, sudden onset; worse inside air-conditioning"
+                placeholder="যেমন: ৩ দিন ধরে, হঠাৎ করে শুরু হয়েছে"
                 value={formData.duration}
                 onChange={handleChange}
                 className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-hidden focus:ring-1 focus:ring-teal-500 focus:border-teal-500 bg-white"
@@ -225,9 +225,9 @@ export default function IntakeForm({ onSave, initialIntake }: IntakeFormProps) {
             <div>
               <div className="flex justify-between items-center mb-1">
                 <label className="text-xs font-semibold text-gray-700">
-                  3. Pain / Severity Level: <span className="text-teal-800 font-bold font-mono">{formData.severity}/10</span>
+                  ৩. তীব্রতা (Severity): <span className="text-teal-800 font-bold font-mono">{formData.severity}/10</span>
                 </label>
-                <span className="text-[10px] text-gray-400">Scale of 1 (Mild) to 10 (Crisis)</span>
+                <span className="text-[10px] text-gray-400">1 (মৃদু) থেকে 10 (তীব্র অবস্থা) পর্যন্ত</span>
               </div>
               <input
                 type="range"
@@ -240,9 +240,9 @@ export default function IntakeForm({ onSave, initialIntake }: IntakeFormProps) {
                 className="w-full h-1.5 bg-gray-100 rounded-lg appearance-none cursor-pointer accent-blue-600"
               />
               <div className="flex justify-between text-[10px] text-gray-400 px-0.5 mt-1">
-                <span>1 - Mild</span>
-                <span>5 - Moderate</span>
-                <span>10 - Severe/Emergency</span>
+                <span>1 - মৃদু</span>
+                <span>5 - মাঝারি</span>
+                <span>10 - তীব্র/জরুরি</span>
               </div>
             </div>
 
@@ -250,13 +250,13 @@ export default function IntakeForm({ onSave, initialIntake }: IntakeFormProps) {
             <div className="p-3 bg-red-50/50 rounded-xl border border-red-100">
               <label className="block text-xs font-semibold text-red-900 mb-1 flex items-center gap-1.5">
                 <ShieldAlert className="w-3.5 h-3.5 text-red-600" />
-                4. Known Drug & Nutrient Allergies <span className="text-red-500">*</span>
+                ৪. অ্যালার্জি বা বিরূপ প্রতিক্রিয়া <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
                 name="knownAllergies"
                 id="input-allergies"
-                placeholder="e.g., Penicillin, hives; shellfish, no drug allergy known"
+                placeholder="যেমন: পেনিসিলিনে অ্যালার্জি আছে, অথবা কোন অ্যালার্জি নেই"
                 value={formData.knownAllergies}
                 onChange={handleChange}
                 className="w-full px-3 py-2 text-xs border border-red-200 bg-white rounded-lg focus:outline-hidden focus:ring-1 focus:ring-red-400 focus:border-red-400 text-red-950 font-medium"
@@ -266,13 +266,13 @@ export default function IntakeForm({ onSave, initialIntake }: IntakeFormProps) {
             {/* Current Medications */}
             <div>
               <label className="block text-xs font-semibold text-gray-700 mb-1">
-                5. Current Daily Medications (Prescription or OTC)
+                ৫. বর্তমান নিয়মিত ঔষধ
               </label>
               <textarea
                 name="currentMedications"
                 id="input-medications"
                 rows={2}
-                placeholder="Include supplements, dosage, or 'None'"
+                placeholder="যেমন: ক্যালসিয়াম, ভিটামিন, প্যারাসিটামল"
                 value={formData.currentMedications}
                 onChange={handleChange}
                 className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-hidden focus:ring-1 focus:ring-teal-500 focus:border-teal-500 bg-white"
@@ -283,13 +283,13 @@ export default function IntakeForm({ onSave, initialIntake }: IntakeFormProps) {
             <div>
               <label className="block text-xs font-semibold text-gray-700 mb-1 flex items-center gap-1">
                 <Heart className="w-3.5 h-3.5 text-teal-700" />
-                6. Core Comorbidities & Chronic Illnesses
+                ৬. অন্যান্য রোগ (কোমরবিডিটি)
               </label>
               <input
                 type="text"
                 name="comorbidities"
                 id="input-comorbidities"
-                placeholder="e.g., Type 2 Diabetes, hypertension, kidney disease, none"
+                placeholder="যেমন: ডায়াবেটিস, ব্লাড প্রেসার, ইত্যাদি"
                 value={formData.comorbidities}
                 onChange={handleChange}
                 className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-hidden focus:ring-1 focus:ring-teal-500 focus:border-teal-500 bg-white"
@@ -299,13 +299,13 @@ export default function IntakeForm({ onSave, initialIntake }: IntakeFormProps) {
             {/* Investigations */}
             <div>
               <label className="block text-xs font-semibold text-gray-700 mb-1">
-                7. Previous Diagnostics / Recent Investigations
+                ৭. পূর্ববর্তী রিপোর্ট / সাম্প্রতিক পরীক্ষা
               </label>
               <input
                 type="text"
                 name="knownDiagnosis"
                 id="input-diagnosis"
-                placeholder="e.g., CBC or Endoscopy report summary, none"
+                placeholder="যেমন: রক্তের ব্লাড সুগার রিপোর্ট, এন্ডোস্কপি ইত্যাদি"
                 value={formData.knownDiagnosis}
                 onChange={handleChange}
                 className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-hidden focus:ring-1 focus:ring-teal-500 focus:border-teal-500 bg-white"
@@ -318,13 +318,13 @@ export default function IntakeForm({ onSave, initialIntake }: IntakeFormProps) {
             <div className="grid grid-cols-3 gap-2.5">
               <div>
                 <label className="block text-xs font-semibold text-gray-700 mb-1">
-                  Age
+                  বয়স
                 </label>
                 <input
                   type="number"
                   name="age"
                   id="input-age"
-                  placeholder="Yrs"
+                  placeholder="বছর"
                   value={formData.age}
                   onChange={handleChange}
                   className="w-full px-2.5 py-2 text-xs border border-gray-200 rounded-lg focus:outline-hidden focus:ring-1 focus:ring-teal-500 bg-white"
@@ -332,7 +332,7 @@ export default function IntakeForm({ onSave, initialIntake }: IntakeFormProps) {
               </div>
               <div>
                 <label className="block text-xs font-semibold text-gray-700 mb-1">
-                  Sex
+                  লিঙ্গ
                 </label>
                 <select
                   name="sex"
@@ -341,20 +341,20 @@ export default function IntakeForm({ onSave, initialIntake }: IntakeFormProps) {
                   onChange={handleChange}
                   className="w-full px-2 py-2 text-xs border border-gray-200 rounded-lg focus:outline-hidden focus:ring-1 focus:ring-teal-500 bg-white"
                 >
-                  <option value="Male">Male</option>
-                  <option value="Female">Female</option>
-                  <option value="Other">Other</option>
+                  <option value="Male">পুরুষ</option>
+                  <option value="Female">মহিলা</option>
+                  <option value="Other">অন্যান্য</option>
                 </select>
               </div>
               <div>
                 <label className="block text-xs font-semibold text-gray-700 mb-1">
-                  Weight
+                  ওজন
                 </label>
                 <input
                   type="text"
                   name="weight"
                   id="input-weight"
-                  placeholder="e.g. 70kg"
+                  placeholder="যেমন: 70kg"
                   value={formData.weight}
                   onChange={handleChange}
                   className="w-full px-2.5 py-2 text-xs border border-gray-200 rounded-lg focus:outline-hidden focus:ring-1 focus:ring-teal-500 bg-white"
@@ -365,13 +365,13 @@ export default function IntakeForm({ onSave, initialIntake }: IntakeFormProps) {
             {/* Diet & Hydration */}
             <div>
               <label className="block text-xs font-semibold text-gray-700 mb-1">
-                Dietary Habits & Daily Hydration
+                খাদ্যাভ্যাস এবং দৈনিক পানি পান
               </label>
               <textarea
                 name="dietHydration"
                 id="input-diet"
                 rows={2}
-                placeholder="Water intake, heavy spices, junk food, fasting schedules"
+                placeholder="পানি, মসলা জাতীয় খাবার, ইত্যাদি"
                 value={formData.dietHydration}
                 onChange={handleChange}
                 className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-hidden focus:ring-1 focus:ring-teal-500 bg-white"
@@ -381,13 +381,13 @@ export default function IntakeForm({ onSave, initialIntake }: IntakeFormProps) {
             {/* Occupation & Activity */}
             <div>
               <label className="block text-xs font-semibold text-gray-700 mb-1">
-                Occupation & Physical Activity
+                পেশা এবং শারীরিক কার্যকলাপ
               </label>
               <input
                 type="text"
                 name="occupationActivity"
                 id="input-activity"
-                placeholder="e.g. Desk job, sitting 10hrs; walks 3km daily"
+                placeholder="ডেস্ক জব, প্রতিদিন ২ কিমি হাঁটা"
                 value={formData.occupationActivity}
                 onChange={handleChange}
                 className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-hidden focus:ring-1 focus:ring-teal-500 bg-white"
@@ -397,13 +397,13 @@ export default function IntakeForm({ onSave, initialIntake }: IntakeFormProps) {
             {/* Substance Use */}
             <div>
               <label className="block text-xs font-semibold text-gray-700 mb-1">
-                Habits & Substances
+                ধূমপান ও মদ্যপান
               </label>
               <input
                 type="text"
                 name="substanceUse"
                 id="input-substances"
-                placeholder="Smoking, alcohol, high-dose caffeine"
+                placeholder="ধূমপান, অ্যালকোহল, বা অতিরিক্ত কফি পান"
                 value={formData.substanceUse}
                 onChange={handleChange}
                 className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-hidden focus:ring-1 focus:ring-teal-500 bg-white"
@@ -414,13 +414,13 @@ export default function IntakeForm({ onSave, initialIntake }: IntakeFormProps) {
             <div>
               <label className="block text-xs font-semibold text-gray-700 mb-1 flex items-center gap-1">
                 <Calendar className="w-3.5 h-3.5 text-teal-700" />
-                Recent Travel / Exposure / Infections
+                সাম্প্রতিক ঘোরাঘুরি ও সংক্রমণ ঝুঁকি
               </label>
               <input
                 type="text"
                 name="recentExposures"
                 id="input-exposures"
-                placeholder="Recent throat virus, family members sick, travel history"
+                placeholder="যেমন: সদ্য গ্রামে ভ্রমণ, আশেপাশে ভাইরাল জ্বর রোগী ইত্যাদি"
                 value={formData.recentExposures}
                 onChange={handleChange}
                 className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-hidden focus:ring-1 focus:ring-teal-500 bg-white"
@@ -430,13 +430,13 @@ export default function IntakeForm({ onSave, initialIntake }: IntakeFormProps) {
             {/* Family History */}
             <div>
               <label className="block text-xs font-semibold text-gray-700 mb-1">
-                Family Medical History
+                পারিবারিক স্বাস্থ্য ইতিহাস
               </label>
               <input
                 type="text"
                 name="familyHistory"
                 id="input-family"
-                placeholder="Early cardiac conditions, asthma, cancer genes"
+                placeholder="পারিবারিকভাবে ডায়াবেটিস, হাঁপানি বা হৃদরোগ আছে কিনা"
                 value={formData.familyHistory}
                 onChange={handleChange}
                 className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-hidden focus:ring-1 focus:ring-teal-500 bg-white"
@@ -453,7 +453,7 @@ export default function IntakeForm({ onSave, initialIntake }: IntakeFormProps) {
             className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs leading-none tracking-tight rounded-lg active:scale-[98%] transition-all cursor-pointer flex items-center justify-center gap-2 shadow-2xs"
           >
             <ClipboardList className="w-3.5 h-3.5" />
-            Establish Patient Profile & Sync Chat
+            রোগীর প্রোফাইল সেট করুন এবং চ্যাট সিঙ্ক করুন
           </button>
         </div>
       </form>

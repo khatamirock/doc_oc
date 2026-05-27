@@ -52,11 +52,11 @@ export default function ChatMessage({ message, patientIntake, isLatest }: ChatMe
     <div className={`flex flex-col mb-4 ${isAssistant ? 'items-start' : 'items-end'}`}>
       <div className="flex items-center gap-2 mb-1 px-1">
         <span className="text-[10px] font-mono text-slate-450 text-slate-500 font-semibold">
-          {isAssistant ? 'Clinical Consultant AI' : 'Patient'} • {formatTime(message.timestamp)}
+          {isAssistant ? 'ক্লিনিক্যাল কনসালটেন্ট এআই' : 'রোগী'} • {formatTime(message.timestamp)}
         </span>
         {isAssistant && hasPrescriptionPlan && (
           <span className="bg-blue-50 text-blue-700 text-[9px] px-1.5 py-0.5 rounded-md font-mono border border-blue-100 font-bold flex items-center gap-0.5">
-            <Check className="w-2.5 h-2.5 text-blue-600" /> Assessment Active
+            <Check className="w-2.5 h-2.5 text-blue-600" /> মূল্যায়ন সক্রিয়
           </span>
         )}
       </div>
@@ -76,7 +76,7 @@ export default function ChatMessage({ message, patientIntake, isLatest }: ChatMe
               <div className="bg-slate-50 px-4 py-2 border-b border-slate-200 flex items-center justify-between gap-4">
                 <div className="flex items-center gap-2">
                   <Stethoscope className="w-4 h-4 text-blue-600" />
-                  <span className="text-xs font-bold text-slate-800 font-display">Diagnostic & Guidance Advisory</span>
+                  <span className="text-xs font-bold text-slate-800 font-display">ডায়াগনস্টিক ও পরামর্শ</span>
                 </div>
                 <button
                   type="button"
@@ -88,12 +88,12 @@ export default function ChatMessage({ message, patientIntake, isLatest }: ChatMe
                   {isExporting ? (
                     <>
                       <Loader2 className="w-3 h-3 animate-spin mr-1" />
-                      Saving PDF...
+                      সেভ হচ্ছে...
                     </>
                   ) : (
                     <>
                       <Download className="w-3 h-3 mr-1" />
-                      Save Report as PDF
+                      রিপোর্ট পিডিএফ করুন
                     </>
                   )}
                 </button>
@@ -109,16 +109,16 @@ export default function ChatMessage({ message, patientIntake, isLatest }: ChatMe
                   <div>
                     <div className="flex items-center gap-2 text-slate-805 mb-1">
                       <Stethoscope className="w-5 h-5 text-blue-600" />
-                      <h1 className="text-base font-bold tracking-tight font-display text-slate-805 uppercase">CLINICAL ASSESSMENT DOCUMENT</h1>
+                      <h1 className="text-base font-bold tracking-tight font-display text-slate-805 uppercase">ক্লিনিক্যাল অ্যাসেসমেন্ট রিপোর্ট</h1>
                     </div>
                     <p className="text-[10px] text-slate-500 max-w-sm uppercase font-mono tracking-wider font-bold">
-                      Consultant Desk v2.0 • Evidence-Based Decision Plan
+                      কনসালটেন্ট ডেস্ক v2.0 • প্রমাণ-ভিত্তিক চিকিৎসা পরিকল্পনা
                     </p>
                   </div>
                   <div className="text-right md:text-right text-[10px] font-mono text-slate-500 leading-normal border-t md:border-t-0 pt-2 md:pt-0 border-slate-200 w-full md:w-auto">
-                    <div><strong>Consult Date:</strong> {new Date(message.timestamp).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}</div>
-                    <div><strong>Report ID:</strong> CCN-{message.id.slice(0, 6).toUpperCase()}</div>
-                    <div className="text-blue-600 font-bold uppercase">Bangladesh local drug metrics verified</div>
+                    <div><strong>পরামর্শের তারিখ:</strong> {new Date(message.timestamp).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}</div>
+                    <div><strong>রিপোর্ট আইডি:</strong> CCN-{message.id.slice(0, 6).toUpperCase()}</div>
+                    <div className="text-blue-600 font-bold uppercase">বাংলাদেশ স্থানীয় ঔষধ যাচাইকৃত (medex.com.bd)</div>
                   </div>
                 </div>
 
@@ -127,33 +127,33 @@ export default function ChatMessage({ message, patientIntake, isLatest }: ChatMe
                   <div className="mb-4 p-3 bg-slate-50 rounded-lg border border-slate-200 text-slate-900">
                     <h3 className="text-xs font-bold text-slate-805 uppercase font-mono tracking-wider mb-2 flex items-center gap-1.5 border-b border-slate-200 pb-1 font-display">
                       <FileText className="w-3.5 h-3.5 text-blue-600" />
-                      Patient Consultation Dossier
+                      রোগীর কনসালটেশন ফাইল
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-y-1.5 gap-x-4 text-[11px] leading-relaxed">
                       {patientIntake.chiefComplaint && (
                         <div className="col-span-1 md:col-span-2">
-                          <strong>Chief complaint:</strong> <span className="text-slate-700">{patientIntake.chiefComplaint}</span>
+                          <strong>প্রধান লক্ষণ:</strong> <span className="text-slate-700">{patientIntake.chiefComplaint}</span>
                         </div>
                       )}
-                      <div><strong>Onset & Duration:</strong> <span className="text-slate-700">{patientIntake.duration}</span></div>
-                      <div><strong>Reported severity:</strong> <span className="text-blue-700 font-bold font-mono">{patientIntake.severity}/10</span></div>
+                      <div><strong>শুরু ও সময়কাল:</strong> <span className="text-slate-700">{patientIntake.duration}</span></div>
+                      <div><strong>তীব্রতা:</strong> <span className="text-blue-700 font-bold font-mono">{patientIntake.severity}/10</span></div>
                       
                       {patientIntake.knownAllergies && (
                         <div className="col-span-1 md:col-span-2 p-1.5 bg-red-50 text-red-950 rounded border border-red-100">
-                          <strong>Allergies / Adverse responses:</strong> <span className="font-semibold">{patientIntake.knownAllergies}</span>
+                          <strong>অ্যালার্জি / বিরূপ প্রতিক্রিয়া:</strong> <span className="font-semibold">{patientIntake.knownAllergies}</span>
                         </div>
                       )}
                       
                       {patientIntake.comorbidities && (
-                        <div><strong>Comorbidities:</strong> <span className="text-slate-700">{patientIntake.comorbidities}</span></div>
+                        <div><strong>অন্যান্য রোগ (কোমরবিডিটি):</strong> <span className="text-slate-700">{patientIntake.comorbidities}</span></div>
                       )}
                       {patientIntake.currentMedications && (
-                        <div><strong>Current medications:</strong> <span className="text-slate-700">{patientIntake.currentMedications}</span></div>
+                        <div><strong>বর্তমান ঔষধ:</strong> <span className="text-slate-700">{patientIntake.currentMedications}</span></div>
                       )}
                       {(patientIntake.age || patientIntake.sex || patientIntake.weight) && (
                         <div>
-                          <strong>Demographics:</strong> <span className="text-slate-700">
-                            {[patientIntake.age ? `${patientIntake.age}y` : '', patientIntake.sex, patientIntake.weight].filter(Boolean).join(' | ')}
+                          <strong>রোগীর তথ্য:</strong> <span className="text-slate-700">
+                            {[patientIntake.age ? `${patientIntake.age} বছর` : '', patientIntake.sex === 'Male' ? 'পুরুষ' : patientIntake.sex === 'Female' ? 'মহিলা' : patientIntake.sex, patientIntake.weight].filter(Boolean).join(' | ')}
                           </span>
                         </div>
                       )}
@@ -171,19 +171,19 @@ export default function ChatMessage({ message, patientIntake, isLatest }: ChatMe
                         let icon = null;
                         let color = "text-slate-805 border-slate-205";
                         
-                        if (text.includes('Symptom Summary') || text.includes('🔎')) {
+                        if (text.includes('Symptom Summary') || text.includes('লক্ষণ সারাংশ') || text.includes('🔎')) {
                           icon = <Activity className="w-3.5 h-3.5 text-blue-600 inline mr-1.5" />;
-                        } else if (text.includes('Root Cause') || text.includes('🧩')) {
+                        } else if (text.includes('Root Cause') || text.includes('মূল কারণ মূল্যায়ন') || text.includes('🧩')) {
                           icon = <Stethoscope className="w-3.5 h-3.5 text-blue-600 inline mr-1.5" />;
-                        } else if (text.includes('Therapeutic') || text.includes('🎯')) {
+                        } else if (text.includes('Therapeutic') || text.includes('চিকিৎসার লক্ষ্য') || text.includes('🎯')) {
                           icon = <Check className="w-3.5 h-3.5 text-green-600 inline mr-1.5" />;
-                        } else if (text.includes('Prescription') || text.includes('💊')) {
+                        } else if (text.includes('Prescription') || text.includes('প্রেসক্রিপশন') || text.includes('💊')) {
                           icon = <Heart className="w-3.5 h-3.5 text-rose-600 inline mr-1.5" fill="rgba(225, 29, 72, 0.1)" />;
                           color = "text-slate-850 border-slate-300 bg-slate-50 p-1.5 rounded";
-                        } else if (text.includes('Red Flags') || text.includes('⚠️')) {
+                        } else if (text.includes('Red Flags') || text.includes('ঝুঁকিপূর্ণ লক্ষণ') || text.includes('⚠️')) {
                           icon = <AlertTriangle className="w-3.5 h-3.5 text-red-600 inline mr-1.5" />;
                           color = "red-flag-zone";
-                        } else if (text.includes('Lifestyle') || text.includes('🌿')) {
+                        } else if (text.includes('Lifestyle') || text.includes('জীবনধারা ও সহায়ক ব্যবস্থা') || text.includes('🌿')) {
                           icon = <Check className="w-3.5 h-3.5 text-blue-600 inline mr-1.5" />;
                           color = "text-slate-805 border-slate-200 bg-slate-50/50";
                         }
@@ -235,10 +235,10 @@ export default function ChatMessage({ message, patientIntake, isLatest }: ChatMe
                 {/* Professional clinical footnote for compliance */}
                 <div className="mt-6 pt-3 border-t border-slate-200 text-[9px] leading-relaxed text-slate-505 text-slate-500 font-sans italic">
                   <p className="mb-1">
-                    <strong>Bangladesh medex.com.bd Verification Flag:</strong> Brand alternatives, forms, and pricing estimates are compiled as reference benchmarks from major manufacturers (Square, Incepta, Beximco) on the basis of current formulations and DGDA local criteria.
+                    <strong>Bangladesh medex.com.bd Verification Flag:</strong> স্কয়ার, ইনসেপ্টা, বেক্সিমকোর জেনেরিক ঔষধের ডাটা থেকে বিশ্লেষণ করে রেফারেন্স প্রদান করা হয়েছে।
                   </p>
                   <p>
-                    <strong>Disclaimer:</strong> This is an AI-powered clinical decision support report modeled on the Physician + Clinical Pharmacist system. It does not constituent a legally binding medical prescription. Please execute review with a registered physician or medical practitioner before therapeutic ingestion.
+                    <strong>সতর্কতা:</strong> এটি একটি এআই-চালিত চিকিৎসা পরামর্শ নির্দেশিকা। এটি পেশাদার রেজিস্টার্ড ডাক্তারের বিকল্প নয়। কোনো ঔষধ ব্যবহারের পূর্বে আপনার চিকিৎসকের সাথে পরামর্শ করুন।
                   </p>
                 </div>
               </div>
