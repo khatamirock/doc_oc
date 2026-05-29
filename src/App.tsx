@@ -21,7 +21,10 @@ import {
   Heart,
   FileText,
   MessageSquare,
-  LayoutDashboard
+  LayoutDashboard,
+  Key,
+  Eye,
+  EyeOff
 } from 'lucide-react';
 
 export default function App() {
@@ -30,6 +33,12 @@ export default function App() {
   const [inputText, setInputText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [serverOnline, setServerOnline] = useState<boolean | null>(null);
+
+  // Custom API Key states saved in localStorage
+  const [apiKey, setApiKey] = useState<string>(() => localStorage.getItem('gemini_api_key') || '');
+  const [showSettings, setShowSettings] = useState(false);
+  const [tempApiKey, setTempApiKey] = useState(apiKey);
+  const [showKeyPassword, setShowKeyPassword] = useState(false);
 
   // Mobile Tab State
   const [mobileTab, setMobileTab] = useState<'intake' | 'chat' | 'dashboard'>('chat');
@@ -126,7 +135,8 @@ export default function App() {
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey
         },
         body: JSON.stringify({ messages: chatHistory })
       });
@@ -189,7 +199,8 @@ export default function App() {
         const fallbackResponse = await fetch('/api/chat-sync', {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'x-api-key': apiKey
           },
           body: JSON.stringify({ messages: chatHistory })
         });
@@ -205,10 +216,17 @@ export default function App() {
           )
         );
       } catch (fallbackError: any) {
+        const errMessage = fallbackError.message || error.message || '';
+        let displayError = `⚠️ **ক্লিনিক্যাল ডেস্ক পৌঁছানো যায়নি**\n\nসার্ভার-সাইড ইন্টেলিজেন্সের সাথে যোগাযোগ করতে সমস্যা হয়েছে: \n\`${errMessage}\`\n\nদয়া করে আপনার এআই স্টুডিও কনফিগারেশন চেক করুন।`;
+        
+        if (errMessage.includes("API Key") || errMessage.includes("API key") || errMessage.includes("leaked") || errMessage.includes("Forbidden") || errMessage.includes("403") || errMessage.includes("401") || errMessage.includes("PERMISSION_DENIED")) {
+          displayError = `🔑 **এপিআই কী ত্রুটি (API Key Error)**\n\nসার্ভারের এপিআই কী-টি বাতিল বা লিক হয়ে গেছে (\`${errMessage.includes("leaked") ? "Leaked API Key" : "Forbidden/Unauthorized"}\`)।\n\nঅনুগ্রহ করে আপনার নিজস্ব জেমিনি এপিআই কী সেট করুন:\n১. উপরে ডানদিকের **"API Key"** বাটনে ক্লিক করুন।\n২. আপনার এপিআই কী পেস্ট করে সেভ করুন এবং পুনরায় চেষ্টা করুন।`;
+        }
+
         setMessages(prev =>
           prev.map(msg =>
             msg.id === assistantMessageId
-              ? { ...msg, content: `⚠️ **ক্লিনিক্যাল ডেস্ক পৌঁছানো যায়নি**\n\nসার্ভার-সাইড ইন্টেলিজেন্সে সাথে যোগাযোগ করতে সমস্যা হয়েছে: \n\`${fallbackError.message || error.message}\`\n\nদয়া করে আপনার এআই স্টুডিও কনফিগারেশনের সার্ভার ক্রেডেনশিয়াল চেক করুন।` }
+              ? { ...msg, content: displayError }
               : msg
           )
         );
@@ -280,14 +298,28 @@ export default function App() {
           <div className="flex items-center gap-4">
             {/* Connection Status tracker */}
             <div className="text-[11px] text-slate-300 font-mono items-center gap-1.5 hidden sm:flex">
-              <span className="w-2 h-2 rounded-full bg-green-500 inline-block animate-pulse"></span>
-              <span>জেমিনি ৩.৫ ফ্ল্যাশ সক্রিয়</span>
+              <span className={`w-2 h-2 rounded-full ${apiKey ? 'bg-blue-400' : 'bg-green-500'} inline-block animate-pulse`}></span>
+              <span>{apiKey ? 'কাস্টম এপিআই কী সক্রিয়' : 'সার্ভার এপিআই কী সক্রিয়'}</span>
             </div>
 
+            {/* API Key configuration button */}
+            <button
+              onClick={() => {
+                setTempApiKey(apiKey);
+                setShowSettings(true);
+              }}
+              id="header-api-key-btn"
+              className={`px-2.5 py-1 ${apiKey ? 'bg-blue-900/40 border-blue-700 text-blue-200 hover:bg-blue-800' : 'bg-amber-950/40 border-amber-900 text-amber-200 hover:bg-amber-800'} rounded-md border transition-all cursor-pointer flex items-center justify-center gap-1 text-[11px] font-bold`}
+              title="আপনার নিজস্ব জেমিনি এপিআই কী সেট করুন"
+            >
+              <Key className="w-3.5 h-3.5" />
+              <span>{apiKey ? 'API Key (সেট আছে)' : 'API Key সেট করুন'}</span>
+            </button>
+
             {/* Server connection status alert */}
-            {serverOnline === false && (
+            {serverOnline === false && !apiKey && (
               <span className="text-[10px] bg-red-950/40 border border-red-900/50 text-red-200 px-2 py-0.5 rounded font-medium flex items-center gap-1">
-                <AlertCircle className="w-3 h-3 text-red-500" /> এপিআই চেক ব্যর্থ
+                <AlertCircle className="w-3 h-3 text-red-500" /> এপিআই কী প্রয়োজন
               </span>
             )}
 
@@ -596,6 +628,111 @@ export default function App() {
           <span className="text-[10px] font-bold">ড্যাশবোর্ড</span>
         </button>
       </div>
+
+      {/* API Key Settings Modal (Glassmorphism & Rich Design) */}
+      {showSettings && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs animate-fade-in">
+          <div 
+            className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-6 shadow-2xl relative text-white"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="flex items-center gap-3 border-b border-slate-800 pb-4 mb-4">
+              <div className="p-2 bg-blue-600/20 text-blue-400 rounded-xl animate-pulse">
+                <Key className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="font-display font-bold text-base text-slate-100">
+                  জেমিনি এপিআই কী কনফিগারেশন
+                </h3>
+                <p className="text-[11px] text-slate-400 font-medium">
+                  Gemini API Key Configuration
+                </p>
+              </div>
+            </div>
+
+            {/* Modal Body */}
+            <div className="space-y-4">
+              <p className="text-xs text-slate-300 leading-relaxed">
+                সার্ভারের ডিফল্ট এপিআই কী যদি কাজ না করে বা নিষ্ক্রিয় হয়, তাহলে আপনি আপনার নিজস্ব API Key ব্যবহার করতে পারেন। এটি আপনার ব্রাউজারের <strong>ওয়েব ক্যাশে (localStorage)</strong> নিরাপদভাবে সংরক্ষিত থাকবে।
+              </p>
+
+              <div className="space-y-2">
+                <label className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block font-mono">
+                  Gemini API Key:
+                </label>
+                <div className="relative flex items-center">
+                  <input
+                    type={showKeyPassword ? "text" : "password"}
+                    value={tempApiKey}
+                    onChange={(e) => setTempApiKey(e.target.value)}
+                    placeholder="AIzaSy..."
+                    className="w-full pl-3 pr-10 py-2 bg-slate-950 border border-slate-800 rounded-lg text-xs focus:ring-1 focus:ring-blue-650 focus:border-blue-600 text-slate-100 placeholder-slate-600 font-mono"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowKeyPassword(!showKeyPassword)}
+                    className="absolute right-2.5 p-1 text-slate-500 hover:text-slate-300 cursor-pointer"
+                  >
+                    {showKeyPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+
+              <div className="bg-slate-950/50 border border-slate-800/60 p-3 rounded-lg text-[10px] text-slate-400 leading-relaxed">
+                💡 <strong>কীভাবে এপিআই কী পাবেন?</strong><br />
+                ১. <a href="https://aistudio.google.com/" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline inline-flex items-center gap-0.5">Google AI Studio <ArrowRight className="w-2.5 h-2.5 font-bold" /></a>-তে যান।<br />
+                ২. আপনার গুগল অ্যাকাউন্ট দিয়ে লগইন করে <strong>"Get API key"</strong> বাটনে ক্লিক করুন।<br />
+                ৩. কী-টি কপি করে এখানে পেস্ট করুন। এটি সম্পূর্ণ ফ্রি!
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="flex items-center justify-between border-t border-slate-800 pt-4 mt-6">
+              <button
+                type="button"
+                onClick={() => {
+                  localStorage.removeItem('gemini_api_key');
+                  setApiKey('');
+                  setTempApiKey('');
+                  setShowSettings(false);
+                }}
+                className="px-3 py-1.5 bg-slate-950 hover:bg-red-950/30 text-slate-400 hover:text-red-400 rounded-lg border border-slate-800 transition-all text-xs font-semibold cursor-pointer"
+              >
+                রিসেট / মুছে ফেলুন
+              </button>
+
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowSettings(false)}
+                  className="px-3 py-1.5 bg-slate-850 hover:bg-slate-800 text-slate-300 rounded-lg text-xs font-semibold cursor-pointer"
+                >
+                  বাতিল
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const cleaned = tempApiKey.trim();
+                    if (cleaned) {
+                      localStorage.setItem('gemini_api_key', cleaned);
+                      setApiKey(cleaned);
+                    } else {
+                      localStorage.removeItem('gemini_api_key');
+                      setApiKey('');
+                    }
+                    setShowSettings(false);
+                  }}
+                  className="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold transition-all cursor-pointer shadow-xs"
+                >
+                  সংরক্ষণ করুন
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      )}
 
     </div>
   );

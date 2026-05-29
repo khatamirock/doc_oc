@@ -10,15 +10,25 @@ import express from "express";
 import { GoogleGenAI } from "@google/genai";
 import { CLINICAL_SYSTEM_PROMPT } from "./_prompt.js";
 
-// Initialize Google GenAI
-const ai = new GoogleGenAI({
-  apiKey: process.env.GEMINI_API_KEY,
-  httpOptions: {
-    headers: {
-      "User-Agent": "aistudio-build",
+// Helper to get GoogleGenAI client with optional custom API key from client header/body
+function getAIClient(req: express.Request) {
+  let customApiKey = (req.headers["x-api-key"] as string) || (req.body && req.body.apiKey);
+  if (customApiKey === "undefined" || customApiKey === "null") {
+    customApiKey = "";
+  }
+  const apiKey = customApiKey || process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    throw new Error("Gemini API Key is missing. Please configure it in the web interface settings.");
+  }
+  return new GoogleGenAI({
+    apiKey: apiKey,
+    httpOptions: {
+      headers: {
+        "User-Agent": "aistudio-build",
+      },
     },
-  },
-});
+  });
+}
 
 const app = express();
 app.use(express.json());
@@ -39,12 +49,13 @@ app.post("/api/chat-sync", async (req, res) => {
       return res.status(400).json({ error: "Messages array is required." });
     }
 
+    const clientAi = getAIClient(req);
     const contents = messages.map((msg: any) => ({
       role: msg.role === "assistant" ? "model" : "user",
       parts: [{ text: msg.content }],
     }));
 
-    const response = await ai.models.generateContent({
+    const response = await clientAi.models.generateContent({
       model: "gemini-3.5-flash",
       contents: contents,
       config: {
@@ -70,11 +81,7 @@ app.post("/api/chat", async (req, res) => {
       return res.status(400).json({ error: "Messages array is required." });
     }
 
-    if (!process.env.GEMINI_API_KEY) {
-      return res
-        .status(500)
-        .json({ error: "GEMINI_API_KEY is not set on the server." });
-    }
+    const clientAi = getAIClient(req);
 
     // Configure Event Stream headers
     res.setHeader("Content-Type", "text/event-stream");
@@ -87,7 +94,7 @@ app.post("/api/chat", async (req, res) => {
       parts: [{ text: msg.content }],
     }));
 
-    const responseStream = await ai.models.generateContentStream({
+    const responseStream = await clientAi.models.generateContentStream({
       model: "gemini-3.5-flash",
       contents: contents,
       config: {
