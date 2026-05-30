@@ -629,9 +629,9 @@ export default function App() {
               </h3>
               <button onClick={() => setShowSettings(false)} className="text-slate-400 hover:text-red-500 transition-colors">✕</button>
             </div>
-            <div className="p-4 space-y-3">
+            <div className="p-4 space-y-4">
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">কাস্টম জেমিনি এপিআই কী (Custom Gemini API Key)</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1 font-sans">কাস্টম জেমিনি এপিআই কী (Custom Gemini API Key)</label>
                 <input 
                   type="password" 
                   autoComplete="off"
@@ -640,7 +640,26 @@ export default function App() {
                   placeholder="AIzaSy..."
                   className="w-full px-3 py-2 text-xs border border-slate-300 rounded focus:border-blue-500 focus:ring-1 focus:ring-blue-500 font-mono"
                 />
-                <p className="text-[10px] text-slate-500 mt-1.5 leading-tight">আপনার নিজের API Key সেভ করে রাখুন। এটি শুধুমাত্র আপনার ব্রাউজারে সংরক্ষিত থাকবে।</p>
+                <p className="text-[10px] text-slate-500 mt-1.5 leading-tight font-sans">আপনার নিজের API Key সেভ করে রাখুন। এটি শুধুমাত্র আপনার ব্রাউজারে সংরক্ষিত থাকবে।</p>
+              </div>
+
+              <div className="bg-blue-50 border border-blue-100 rounded-lg p-3 text-[11px] text-blue-900 space-y-1.5 font-sans">
+                <p className="font-bold flex items-center gap-1">🔑 কীভাবে এপিআই কী পাবেন?</p>
+                <ol className="list-decimal list-inside space-y-1 leading-normal pl-1">
+                  <li>
+                    <a 
+                      href="https://aistudio.google.com/" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="underline font-bold text-blue-700 hover:text-blue-900"
+                    >
+                      Google AI Studio (aistudio.google.com)
+                    </a> লিংকে যান।
+                  </li>
+                  <li>আপনার Google অ্যাকাউন্ট দিয়ে লগইন করুন।</li>
+                  <li><strong className="font-semibold">"Get API key"</strong>-এ ক্লিক করে একটি নতুন কী তৈরি করুন।</li>
+                  <li>কী-টি কপি করে উপরের বক্সে পেস্ট করে <strong className="font-semibold">"সেভ করুন"</strong> বাটনে চাপুন।</li>
+                </ol>
               </div>
             </div>
             <div className="p-3 bg-slate-50 border-t border-slate-200 flex justify-end">
