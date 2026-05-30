@@ -5,6 +5,7 @@
 
 import React, { useState } from 'react';
 import Markdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { ChatMessage as MessageType, PatientIntake } from '../types';
 import { exportElementToPDF } from '../lib/pdf';
 import { 
@@ -164,6 +165,7 @@ export default function ChatMessage({ message, patientIntake, isLatest }: ChatMe
                 {/* Structured Text Content */}
                 <div className="text-xs md:text-[12px] text-slate-800 leading-normal font-sans prose prose-slate max-w-none">
                   <Markdown
+                    remarkPlugins={[remarkGfm]}
                     components={{
                       // Customizing markdown output to render stunning clinical UI formats
                       h3: ({ children }) => {
@@ -247,6 +249,7 @@ export default function ChatMessage({ message, patientIntake, isLatest }: ChatMe
             /* General text assistant message (e.g. asking clarifying questions or pleasantries) */
             <div className="max-w-[90%] bg-white text-slate-855 px-3.5 py-2.5 rounded-xl rounded-tl-xs border border-slate-200 shadow-2xs text-xs font-semibold leading-relaxed">
               <Markdown
+                remarkPlugins={[remarkGfm]}
                 components={{
                   code: ({ children }) => <code className="bg-slate-150 text-slate-900 px-1 py-0.5 rounded font-mono text-xs font-semibold bg-slate-100">{children}</code>
                 }}

@@ -7,12 +7,12 @@ import React, { useState, useEffect, useRef } from 'react';
 import { PatientIntake, ChatMessage as MessageType } from './types';
 import IntakeForm from './components/IntakeForm';
 import ChatMessage from './components/ChatMessage';
-import {
-  Stethoscope,
-  Trash2,
-  User,
-  AlertCircle,
-  ArrowRight,
+import { 
+  Stethoscope, 
+  Trash2, 
+  User, 
+  AlertCircle, 
+  ArrowRight, 
   Send,
   Loader2,
   Calendar,
@@ -21,10 +21,7 @@ import {
   Heart,
   FileText,
   MessageSquare,
-  LayoutDashboard,
-  Key,
-  Eye,
-  EyeOff
+  LayoutDashboard
 } from 'lucide-react';
 
 export default function App() {
@@ -33,16 +30,10 @@ export default function App() {
   const [inputText, setInputText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [serverOnline, setServerOnline] = useState<boolean | null>(null);
-
-  // Custom API Key states saved in localStorage
-  const [apiKey, setApiKey] = useState<string>(() => localStorage.getItem('gemini_api_key') || '');
-  const [showSettings, setShowSettings] = useState(false);
-  const [tempApiKey, setTempApiKey] = useState(apiKey);
-  const [showKeyPassword, setShowKeyPassword] = useState(false);
-
+  
   // Mobile Tab State
   const [mobileTab, setMobileTab] = useState<'intake' | 'chat' | 'dashboard'>('chat');
-
+  
   const bottomRef = useRef<HTMLDivElement>(null);
 
   // Check backend server availability on boot
@@ -82,7 +73,7 @@ export default function App() {
   // Handle saving clinical intake sheet and syncing to chat context
   const handleSaveIntake = (intake: PatientIntake) => {
     setPatientIntake(intake);
-
+    
     // Auto-generate a beautiful summary message representing the patient file
     const intakeSummary = `### 📋 ক্লিনিক্যাল ইনটেক ফর্ম সিঙ্ক্রোনাইজড
 
@@ -120,7 +111,7 @@ export default function App() {
   // Trigger stream formulation from the server
   const triggerConsultationResponse = async (chatHistory: MessageType[]) => {
     setIsLoading(true);
-
+    
     const assistantMessageId = `assist-${Date.now()}`;
     const initialAssistantMessage: MessageType = {
       id: assistantMessageId,
@@ -135,8 +126,7 @@ export default function App() {
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': apiKey
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({ messages: chatHistory })
       });
@@ -156,7 +146,7 @@ export default function App() {
           if (done) break;
 
           buffer += decoder.decode(value, { stream: true });
-
+          
           // Split on SSE delimiters
           const lines = buffer.split('\n\n');
           // Hold onto the last chunk in case it's partial
@@ -176,10 +166,10 @@ export default function App() {
                 }
                 if (parsed.text) {
                   completedText += parsed.text;
-                  setMessages(prev =>
-                    prev.map(msg =>
-                      msg.id === assistantMessageId
-                        ? { ...msg, content: completedText, isClinicalAssessment: true }
+                  setMessages(prev => 
+                    prev.map(msg => 
+                      msg.id === assistantMessageId 
+                        ? { ...msg, content: completedText, isClinicalAssessment: true } 
                         : msg
                     )
                   );
@@ -193,40 +183,32 @@ export default function App() {
       }
     } catch (error: any) {
       console.error("Stream compilation error:", error);
-
+      
       // Attempt fallback to non-streaming API route if stream fails
       try {
         const fallbackResponse = await fetch('/api/chat-sync', {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json',
-            'x-api-key': apiKey
+            'Content-Type': 'application/json'
           },
           body: JSON.stringify({ messages: chatHistory })
         });
         const data = await fallbackResponse.json();
-
+        
         if (data.error) throw new Error(data.error);
 
-        setMessages(prev =>
-          prev.map(msg =>
-            msg.id === assistantMessageId
-              ? { ...msg, content: data.text || 'প্রতিক্রিয়া পার্স করার সময় একটি সমস্যা দেখা দিয়েছে।', isClinicalAssessment: true }
+        setMessages(prev => 
+          prev.map(msg => 
+            msg.id === assistantMessageId 
+              ? { ...msg, content: data.text || 'প্রতিক্রিয়া পার্স করার সময় একটি সমস্যা দেখা দিয়েছে।', isClinicalAssessment: true } 
               : msg
           )
         );
       } catch (fallbackError: any) {
-        const errMessage = fallbackError.message || error.message || '';
-        let displayError = `⚠️ **ক্লিনিক্যাল ডেস্ক পৌঁছানো যায়নি**\n\nসার্ভার-সাইড ইন্টেলিজেন্সের সাথে যোগাযোগ করতে সমস্যা হয়েছে: \n\`${errMessage}\`\n\nদয়া করে আপনার এআই স্টুডিও কনফিগারেশন চেক করুন।`;
-        
-        if (errMessage.includes("API Key") || errMessage.includes("API key") || errMessage.includes("leaked") || errMessage.includes("Forbidden") || errMessage.includes("403") || errMessage.includes("401") || errMessage.includes("PERMISSION_DENIED")) {
-          displayError = `🔑 **এপিআই কী ত্রুটি (API Key Error)**\n\nসার্ভারের এপিআই কী-টি বাতিল বা লিক হয়ে গেছে (\`${errMessage.includes("leaked") ? "Leaked API Key" : "Forbidden/Unauthorized"}\`)।\n\nঅনুগ্রহ করে আপনার নিজস্ব জেমিনি এপিআই কী সেট করুন:\n১. উপরে ডানদিকের **"API Key"** বাটনে ক্লিক করুন।\n২. আপনার এপিআই কী পেস্ট করে সেভ করুন এবং পুনরায় চেষ্টা করুন।`;
-        }
-
-        setMessages(prev =>
-          prev.map(msg =>
-            msg.id === assistantMessageId
-              ? { ...msg, content: displayError }
+        setMessages(prev => 
+          prev.map(msg => 
+            msg.id === assistantMessageId 
+              ? { ...msg, content: `⚠️ **ক্লিনিক্যাল ডেস্ক পৌঁছানো যায়নি**\n\nসার্ভার-সাইড ইন্টেলিজেন্সে সাথে যোগাযোগ করতে সমস্যা হয়েছে: \n\`${fallbackError.message || error.message}\`\n\nদয়া করে আপনার এআই স্টুডিও কনফিগারেশনের সার্ভার ক্রেডেনশিয়াল চেক করুন।` } 
               : msg
           )
         );
@@ -277,7 +259,7 @@ export default function App() {
 
   return (
     <div className="h-[100dvh] bg-slate-100 text-slate-805 flex flex-col font-sans overflow-hidden" id="medical-application-root">
-
+      
       {/* Upper Navigation Bar */}
       <header className="bg-slate-705 text-white border-b border-slate-805 sticky top-0 z-40 px-6 py-3 shadow-md" id="upper-header">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
@@ -298,31 +280,17 @@ export default function App() {
           <div className="flex items-center gap-4">
             {/* Connection Status tracker */}
             <div className="text-[11px] text-slate-300 font-mono items-center gap-1.5 hidden sm:flex">
-              <span className={`w-2 h-2 rounded-full ${apiKey ? 'bg-blue-400' : 'bg-green-500'} inline-block animate-pulse`}></span>
-              <span>{apiKey ? 'কাস্টম এপিআই কী সক্রিয়' : 'সার্ভার এপিআই কী সক্রিয়'}</span>
+              <span className="w-2 h-2 rounded-full bg-green-500 inline-block animate-pulse"></span>
+              <span>জেমিনি ৩.৫ ফ্ল্যাশ সক্রিয়</span>
             </div>
 
-            {/* API Key configuration button */}
-            <button
-              onClick={() => {
-                setTempApiKey(apiKey);
-                setShowSettings(true);
-              }}
-              id="header-api-key-btn"
-              className={`px-2.5 py-1 ${apiKey ? 'bg-blue-900/40 border-blue-700 text-blue-200 hover:bg-blue-800' : 'bg-amber-950/40 border-amber-900 text-amber-200 hover:bg-amber-800'} rounded-md border transition-all cursor-pointer flex items-center justify-center gap-1 text-[11px] font-bold`}
-              title="আপনার নিজস্ব জেমিনি এপিআই কী সেট করুন"
-            >
-              <Key className="w-3.5 h-3.5" />
-              <span>{apiKey ? 'API Key (সেট আছে)' : 'API Key সেট করুন'}</span>
-            </button>
-
             {/* Server connection status alert */}
-            {serverOnline === false && !apiKey && (
+            {serverOnline === false && (
               <span className="text-[10px] bg-red-950/40 border border-red-900/50 text-red-200 px-2 py-0.5 rounded font-medium flex items-center gap-1">
-                <AlertCircle className="w-3 h-3 text-red-500" /> এপিআই কী প্রয়োজন
+                <AlertCircle className="w-3 h-3 text-red-500" /> এপিআই চেক ব্যর্থ
               </span>
             )}
-
+            
             <button
               onClick={handleResetChat}
               id="header-reset-btn"
@@ -338,7 +306,7 @@ export default function App() {
 
       {/* Main Panel Content Area - Three-column layout for modern high density dashboards */}
       <main className="flex-1 max-w-7xl w-full mx-auto p-2 lg:p-4 flex flex-col lg:grid lg:grid-cols-12 gap-4 overflow-hidden relative">
-
+        
         {/* Left Column: Intake Sheet Module */}
         <section className={`${mobileTab === 'intake' ? 'flex' : 'hidden'} lg:flex lg:col-span-3 h-full overflow-hidden flex-col order-1 lg:order-1`}>
           {patientIntake ? (
@@ -426,14 +394,14 @@ export default function App() {
 
         {/* Center Column: Dynamic Consultation Thread */}
         <section className={`${mobileTab === 'chat' ? 'flex' : 'hidden'} lg:flex lg:col-span-6 h-full bg-slate-100 overflow-hidden flex-col order-2 lg:order-2 rounded-xl border border-slate-200 shadow-xs`}>
-
+          
           {/* Thread Header */}
           <div className="bg-white border-b border-slate-200 px-4 py-2.5 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-blue-600 animate-pulse"></span>
               <span className="text-xs font-bold text-slate-700 uppercase tracking-wider font-mono">কনসালটেশন ডেস্ক</span>
             </div>
-
+            
             {patientIntake ? (
               <span className="text-[9px] bg-blue-50 text-blue-700 px-2 py-0.5 rounded font-mono font-bold border border-blue-100">
                 রোগীর প্রোফাইল সক্রিয়
@@ -448,14 +416,14 @@ export default function App() {
           {/* Messages Flow Scroll Area */}
           <div className="flex-1 overflow-y-auto p-4" id="consultation-chat-scrollbar">
             {messages.map((msg, index) => (
-              <ChatMessage
-                key={msg.id}
-                message={msg}
+              <ChatMessage 
+                key={msg.id} 
+                message={msg} 
                 patientIntake={patientIntake}
                 isLatest={index === messages.length - 1}
               />
             ))}
-
+            
             {/* Appended typing loader during pending requests */}
             {isLoading && (
               <div className="flex items-center gap-2 text-slate-705 text-xs font-semibold bg-white py-2.5 px-3.5 rounded-lg border border-slate-200 max-w-xs shadow-2xs">
@@ -463,7 +431,7 @@ export default function App() {
                 <span>ক্লিনিক্যাল বিশ্লেষণ করা হচ্ছে...</span>
               </div>
             )}
-
+            
             <div ref={bottomRef} />
           </div>
 
@@ -497,8 +465,8 @@ export default function App() {
                 type="text"
                 id="message-composer-input"
                 disabled={isLoading}
-                placeholder={patientIntake
-                  ? "নতুন কোন সমস্যা? যেমন: ঢাকায় কোন ব্র্যান্ডের ঔষধ সহজে পাওয়া যাবে?"
+                placeholder={patientIntake 
+                  ? "নতুন কোন সমস্যা? যেমন: ঢাকায় কোন ব্র্যান্ডের ঔষধ সহজে পাওয়া যাবে?" 
                   : "আপনার সমস্যার কথা লিখুন, অথবা প্রথমে ইনটেক ফর্ম পূরণ করুন..."
                 }
                 value={inputText}
@@ -515,12 +483,7 @@ export default function App() {
                 <span className="hidden sm:inline">পরামর্শ</span>
               </button>
             </form>
-            <div className="flex justify-between items-center mt-2 px-1.5 text-[8.5px] text-slate-400">
-              <span className="flex items-center gap-1 font-mono">
-                <Calendar className="w-3" /> পরামর্শের সময়: {new Date().toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
-              </span>
-              <span>medex.com.bd নির্দেশিকা অনুযায়ী যাচাইকৃত।</span>
-            </div>
+            {/* Footer text removed per user instructions */}
           </div>
 
         </section>
@@ -530,75 +493,76 @@ export default function App() {
           <aside className="w-full h-full flex flex-col gap-3.5 overflow-y-auto bg-white border border-slate-200 rounded-xl p-3.5 shadow-2xs" id="intelligence-dashboard">
             <div>
               <div className="font-bold text-[10px] uppercase text-slate-500 font-mono tracking-wider mb-2 flex items-center gap-1">
-                <span>🩺 ক্লিনিক্যাল সূচক</span>
-              </div>
-
-              <div className="grid grid-cols-2 gap-2">
-                <div className="bg-slate-50 px-2.5 py-1.5 rounded border border-slate-205">
-                  <div className="text-[9px] text-slate-500 font-bold uppercase font-mono">কেসের তীব্রতা</div>
-                  <div className={`font-display font-extrabold text-xs mt-0.5 ${patientIntake
-                      ? Number(patientIntake.severity) > 6
-                        ? 'text-red-655 font-bold'
-                        : Number(patientIntake.severity) > 3
-                          ? 'text-amber-650 font-bold text-amber-600'
-                          : 'text-green-600 font-bold'
-                      : 'text-slate-400 font-semibold'
-                    }`}>
-                    {patientIntake
-                      ? Number(patientIntake.severity) > 6
-                        ? 'তীব্র'
-                        : Number(patientIntake.severity) > 3
-                          ? 'মাঝারি'
-                          : 'মৃদু'
-                      : 'অপেক্ষারত'}
-                  </div>
-                </div>
-                <div className="bg-slate-50 px-2.5 py-1.5 rounded border border-slate-205">
-                  <div className="text-[9px] text-slate-500 font-bold uppercase font-mono">নিশ্চয়তা সূচক</div>
-                  <div className="font-display font-extrabold text-xs text-slate-805 mt-0.5">
-                    {patientIntake ? '৮৫%' : 'প্রযোজ্য নয়'}
-                  </div>
+              <span>🩺 ক্লিনিক্যাল সূচক</span>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-2">
+              <div className="bg-slate-50 px-2.5 py-1.5 rounded border border-slate-205">
+                <div className="text-[9px] text-slate-500 font-bold uppercase font-mono">কেসের তীব্রতা</div>
+                <div className={`font-display font-extrabold text-xs mt-0.5 ${
+                  patientIntake 
+                    ? Number(patientIntake.severity) > 6 
+                      ? 'text-red-655 font-bold'
+                      : Number(patientIntake.severity) > 3 
+                        ? 'text-amber-650 font-bold text-amber-600'
+                        : 'text-green-600 font-bold'
+                    : 'text-slate-400 font-semibold'
+                }`}>
+                  {patientIntake 
+                    ? Number(patientIntake.severity) > 6 
+                      ? 'তীব্র' 
+                      : Number(patientIntake.severity) > 3 
+                        ? 'মাঝারি' 
+                        : 'মৃদু'
+                    : 'অপেক্ষারত'}
                 </div>
               </div>
-            </div>
-
-            <hr className="border-t border-slate-200" />
-
-            {/* Red Flag Zone Alert Panel */}
-            <div className="red-flag-zone flex flex-col gap-1.5">
-              <div className="font-extrabold text-[10px] text-red-700 uppercase font-mono tracking-wider flex items-center gap-1">
-                <AlertCircle className="w-3.5 h-3.5 text-red-600 shrink-0" />
-                <span>🚨 ঝুঁকিপূর্ণ লক্ষণ (Red Flags)</span>
-              </div>
-              <ul className="text-[10px] text-red-900 list-disc pl-4 space-y-1.5 leading-tight font-medium">
-                <li>বুক ব্যথা বাম কাঁধে/হাতে বা চোয়ালে ছড়িয়ে পড়া</li>
-                <li>গিলতে তীব্র কষ্ট (Dysphagia)</li>
-                <li>হঠাৎ তীব্র শ্বাসকষ্ট, অতিরিক্ত ঘাম হওয়া</li>
-                <li>ক্রমাগত বমি বা কালো রঙের মলত্যাগ</li>
-              </ul>
-            </div>
-
-            <hr className="border-t border-slate-200" />
-
-            <div>
-              <div className="font-bold text-[10px] uppercase text-slate-500 font-mono tracking-wider mb-2">
-                📋 কুইক বেঞ্চমার্ক (ঢাকা)
-              </div>
-              <div className="text-[10px] text-slate-600 space-y-2 leading-relaxed bg-slate-50 p-2.5 rounded border border-slate-205">
-                <p>📍 বাংলাদেশ ভিত্তিক <strong>medex.com.bd</strong>-এর তথ্যের সাথে ডাটা যুক্ত করা হয়েছে।</p>
-                <p>💊 স্কয়ার, বেক্সিমকো, এবং ইনসেপ্টার মতো কোম্পানির জেনেরিক ঔষধ ডেটাবেস থেকে মূল্যায়ন করা হয়েছে।</p>
-                <p>🧬 রোগীর অ্যালার্জির ওপর ভিত্তি করে স্বয়ংক্রিয়ভাবে বিপদজনক ঔষধ বাতিল করা হয়।</p>
+              <div className="bg-slate-50 px-2.5 py-1.5 rounded border border-slate-205">
+                <div className="text-[9px] text-slate-500 font-bold uppercase font-mono">নিশ্চয়তা সূচক</div>
+                <div className="font-display font-extrabold text-xs text-slate-805 mt-0.5">
+                  {patientIntake ? '৮৫%' : 'প্রযোজ্য নয়'}
+                </div>
               </div>
             </div>
+          </div>
 
-            <div className="mt-auto pt-4 text-center border-t border-slate-200">
-              <div className="text-[9px] font-bold text-slate-400 font-mono tracking-wider">
-                DSS DECISION SUPPORT v2.0
-              </div>
-              <div className="text-[8px] text-slate-400 mt-1">
-                ronincorp©️
-              </div>
+          <hr className="border-t border-slate-200" />
+
+          {/* Red Flag Zone Alert Panel */}
+          <div className="red-flag-zone flex flex-col gap-1.5">
+            <div className="font-extrabold text-[10px] text-red-700 uppercase font-mono tracking-wider flex items-center gap-1">
+              <AlertCircle className="w-3.5 h-3.5 text-red-600 shrink-0" />
+              <span>🚨 ঝুঁকিপূর্ণ লক্ষণ (Red Flags)</span>
             </div>
+            <ul className="text-[10px] text-red-900 list-disc pl-4 space-y-1.5 leading-tight font-medium">
+              <li>বুক ব্যথা বাম কাঁধে/হাতে বা চোয়ালে ছড়িয়ে পড়া</li>
+              <li>গিলতে তীব্র কষ্ট (Dysphagia)</li>
+              <li>হঠাৎ তীব্র শ্বাসকষ্ট, অতিরিক্ত ঘাম হওয়া</li>
+              <li>ক্রমাগত বমি বা কালো রঙের মলত্যাগ</li>
+            </ul>
+          </div>
+
+          <hr className="border-t border-slate-200" />
+
+          <div>
+            <div className="font-bold text-[10px] uppercase text-slate-500 font-mono tracking-wider mb-2">
+              📋 কুইক বেঞ্চমার্ক (ঢাকা)
+            </div>
+            <div className="text-[10px] text-slate-600 space-y-2 leading-relaxed bg-slate-50 p-2.5 rounded border border-slate-205">
+              <p>📍 বাংলাদেশ ভিত্তিক <strong>medex.com.bd</strong>-এর তথ্যের সাথে ডাটা যুক্ত করা হয়েছে।</p>
+              <p>💊 স্কয়ার, বেক্সিমকো, এবং ইনসেপ্টার মতো কোম্পানির জেনেরিক ঔষধ ডেটাবেস থেকে মূল্যায়ন করা হয়েছে।</p>
+              <p>🧬 রোগীর অ্যালার্জির ওপর ভিত্তি করে স্বয়ংক্রিয়ভাবে বিপদজনক ঔষধ বাতিল করা হয়।</p>
+            </div>
+          </div>
+
+          <div className="mt-auto pt-4 text-center border-t border-slate-200">
+            <div className="text-[9px] font-bold text-slate-400 font-mono tracking-wider">
+              DSS DECISION SUPPORT v2.0
+            </div>
+            <div className="text-[8px] text-slate-400 mt-1">
+              শুধুমাত্র রেফারেন্স হিসেবে ব্যবহারের জন্য।
+            </div>
+          </div>
           </aside>
         </section>
 
@@ -628,111 +592,6 @@ export default function App() {
           <span className="text-[10px] font-bold">ড্যাশবোর্ড</span>
         </button>
       </div>
-
-      {/* API Key Settings Modal (Glassmorphism & Rich Design) */}
-      {showSettings && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs animate-fade-in">
-          <div 
-            className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-6 shadow-2xl relative text-white"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Modal Header */}
-            <div className="flex items-center gap-3 border-b border-slate-800 pb-4 mb-4">
-              <div className="p-2 bg-blue-600/20 text-blue-400 rounded-xl animate-pulse">
-                <Key className="w-5 h-5" />
-              </div>
-              <div>
-                <h3 className="font-display font-bold text-base text-slate-100">
-                  জেমিনি এপিআই কী কনফিগারেশন
-                </h3>
-                <p className="text-[11px] text-slate-400 font-medium">
-                  Gemini API Key Configuration
-                </p>
-              </div>
-            </div>
-
-            {/* Modal Body */}
-            <div className="space-y-4">
-              <p className="text-xs text-slate-300 leading-relaxed">
-                সার্ভারের ডিফল্ট এপিআই কী যদি কাজ না করে বা নিষ্ক্রিয় হয়, তাহলে আপনি আপনার নিজস্ব API Key ব্যবহার করতে পারেন। এটি আপনার ব্রাউজারের <strong>ওয়েব ক্যাশে (localStorage)</strong> নিরাপদভাবে সংরক্ষিত থাকবে।
-              </p>
-
-              <div className="space-y-2">
-                <label className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block font-mono">
-                  Gemini API Key:
-                </label>
-                <div className="relative flex items-center">
-                  <input
-                    type={showKeyPassword ? "text" : "password"}
-                    value={tempApiKey}
-                    onChange={(e) => setTempApiKey(e.target.value)}
-                    placeholder="AIzaSy..."
-                    className="w-full pl-3 pr-10 py-2 bg-slate-950 border border-slate-800 rounded-lg text-xs focus:ring-1 focus:ring-blue-650 focus:border-blue-600 text-slate-100 placeholder-slate-600 font-mono"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowKeyPassword(!showKeyPassword)}
-                    className="absolute right-2.5 p-1 text-slate-500 hover:text-slate-300 cursor-pointer"
-                  >
-                    {showKeyPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
-                </div>
-              </div>
-
-              <div className="bg-slate-950/50 border border-slate-800/60 p-3 rounded-lg text-[10px] text-slate-400 leading-relaxed">
-                💡 <strong>কীভাবে এপিআই কী পাবেন?</strong><br />
-                ১. <a href="https://aistudio.google.com/" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline inline-flex items-center gap-0.5">Google AI Studio <ArrowRight className="w-2.5 h-2.5 font-bold" /></a>-তে যান।<br />
-                ২. আপনার গুগল অ্যাকাউন্ট দিয়ে লগইন করে <strong>"Get API key"</strong> বাটনে ক্লিক করুন।<br />
-                ৩. কী-টি কপি করে এখানে পেস্ট করুন। এটি সম্পূর্ণ ফ্রি!
-              </div>
-            </div>
-
-            {/* Modal Footer */}
-            <div className="flex items-center justify-between border-t border-slate-800 pt-4 mt-6">
-              <button
-                type="button"
-                onClick={() => {
-                  localStorage.removeItem('gemini_api_key');
-                  setApiKey('');
-                  setTempApiKey('');
-                  setShowSettings(false);
-                }}
-                className="px-3 py-1.5 bg-slate-950 hover:bg-red-950/30 text-slate-400 hover:text-red-400 rounded-lg border border-slate-800 transition-all text-xs font-semibold cursor-pointer"
-              >
-                রিসেট / মুছে ফেলুন
-              </button>
-
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => setShowSettings(false)}
-                  className="px-3 py-1.5 bg-slate-850 hover:bg-slate-800 text-slate-300 rounded-lg text-xs font-semibold cursor-pointer"
-                >
-                  বাতিল
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    const cleaned = tempApiKey.trim();
-                    if (cleaned) {
-                      localStorage.setItem('gemini_api_key', cleaned);
-                      setApiKey(cleaned);
-                    } else {
-                      localStorage.removeItem('gemini_api_key');
-                      setApiKey('');
-                    }
-                    setShowSettings(false);
-                  }}
-                  className="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold transition-all cursor-pointer shadow-xs"
-                >
-                  সংরক্ষণ করুন
-                </button>
-              </div>
-            </div>
-
-          </div>
-        </div>
-      )}
 
     </div>
   );

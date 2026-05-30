@@ -41,7 +41,7 @@ apiApp.use(express.json());
 apiApp.get("/api/config", (req, res) => {
   res.json({
     hasApiKey: !!process.env.GEMINI_API_KEY,
-    defaultModel: "gemini-3.1-pro-preview",
+    defaultModel: "gemini-3.5-flash",
   });
 });
 
